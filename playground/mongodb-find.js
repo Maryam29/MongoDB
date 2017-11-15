@@ -8,12 +8,12 @@ MongoClient.connect(url, function(err, db) {
 	}
 	console.log('Connected to MongoDB');
 	
-	// db.collection('Todos').insertOne({
-	// text:"Easy as Pie",
-	// completed:true
-	// },(err)=>{
-		// console.log('Unable to fetch todos',err)
-	// });
+	db.collection('Todos').insertOne({
+	text:"Easy as Pie",
+	completed:true
+	},(err)=>{
+		console.log('Unable to fetch todos',err)
+	});
 	
 	//---------toArray  returns promise if no callback is passed to it, same goes with count---------------------//
 	db.collection('Todos').find().toArray().then((docs) =>{
