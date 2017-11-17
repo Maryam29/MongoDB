@@ -3,6 +3,7 @@ const {ObjectID} = require("mongodb") // to get Object ID and other properties f
 const {Todo} = require("./../server/models/todo"); // to get Todo Collection
 const {User} = require("./../server/models/user");// to get Todo Collection
 
+console.log("Starting app");
 var id = '5a0ec02b479544282de92626';
 if(ObjectID.isValid(id)){
 	
@@ -33,3 +34,4 @@ Todo.findById(id).then((result)=>{
 else{
 	console.log('ID not valid');
 }
+console.log("Fininshing app");

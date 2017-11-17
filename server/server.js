@@ -1,9 +1,10 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-
+const {ObjectID} = require("mongodb") // to get Object ID and other properties from mongodb
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo.js');
 var {user} = require('./models/user');
+
 
 var app = express();
 
@@ -31,6 +32,25 @@ app.get('/todos',(req,res) => {
 	res.send({todos}); // sending data as object
 	},(e)=>{
 		res.status(400).send(e)
+	});
+})
+
+app.get('/todos/:id',(req,res)=>{
+	//res.send(req.params);
+	var id = req.params.id;
+	if(!ObjectID.isValid(id)){
+		return res.status(404).send();
+	}
+			return res.status(404).send();
+	Todo.findById(id).then((result)=>
+	{
+		if(!result)
+			return res.status(404).send();
+		else
+			return res.send(result);
+	}).catch((e)=>
+	{
+	return res.status(400).send("Given Id is Invalid")
 	});
 })
 
