@@ -46,7 +46,7 @@ it('Testing POST /todos shouldnot insert empty text', (done)=>{
 				Todo.find().count().then((count)=>{
 					expect(count).toBe(0);
 					done();
-				}).catch((e)=>{console.log("Inside Catch")})
+				}).catch((e)=>{console.log("Inside Catch")}) // it will not fail the test but simply prints the error as not passing err to done(err)
 			}
 		})
 })
@@ -59,10 +59,10 @@ it('Testing POST /todos shouldnot insert empty text', (done)=>{
 			.expect((res)=>{
 				expect(res.body.text).toBe(text)
 			})
-			.end((err,res)=>{
+			.end((err,res)=>{ // we're giving a function to end() because we need to do below operations asynchronously/ we need to call Todo.find() and check length once no err is returned.
 				if(err) return done(err);
 				Todo.find({text:text}).then((todos)=>{
-					expect(todos.length).toBe(1);
+					expect(todos.length).toBe(1); 
 					expect(todos[0].text).toBe(text);
 					done();
 				}).catch((e)=>done(e));
