@@ -22,6 +22,11 @@ app.post('/todos',(req,res)=>{
 	})
 }) //Create a new Todo
 
+// Todo.find().then((todos)=>{
+	// console.log(todos);
+// })
 app.listen(3000,()=>{
 	console.log('Started on port 3000');
 })
+
+module.exports = {app};

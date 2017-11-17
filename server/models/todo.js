@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+//Model Name is converted to lowercase and in plural form and collection is created in DB----------//
 var Todo = mongoose.model('Todo',{
 text:{
 	type:String,

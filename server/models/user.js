@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 
 //------new collection------------//
+//Model Name is converted to lowercase and in plural form and collection is created in DB----------//
 var user = mongoose.model('Users',{
 Name:{
 	type:String,
