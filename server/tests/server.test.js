@@ -131,9 +131,15 @@ describe('DELETE /todos/:id',()=> {
 		.delete(`/todos/${todoslist[0]._id.toHexString()}`)
 		.expect(200) 
 		.expect((res)=>{
-			expect(res.body.text).toBe(todoslist[0].text);
+			expect(res.body.result.text).toBe(todoslist[0].text);
 		})
-		.end(done);
+		.end((err,res)=>{
+			if(err) return done(err);
+			Todo.find().count().then((count)=>{
+				expect(count).toBe(1);
+				done();
+				}).catch((e)=>done(e));
+		});
 })
 	it('should return 404 when non-object ids', (done)=>{
 	request(app)

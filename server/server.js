@@ -64,7 +64,7 @@ app.delete('/todos/:id',(req,res)=>{
 		if(!result)
 			return res.status(404).send();
 		else
-			return res.send(result);
+			return res.send({result}); //it returns result object
 	}).catch((e)=>
 	{
 	return res.status(400).send("Given Id is Invalid")
