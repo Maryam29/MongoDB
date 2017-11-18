@@ -5,13 +5,22 @@ const {ObjectID} = require("mongodb");
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 
-const todoslist = [{_id: new ObjectID(),text:"Test Case1"},{_id: new ObjectID(),text:"Test Case2"}]
+const todoslist = [
+{_id: new ObjectID(),text:"Testing 1"},
+{_id: new ObjectID(),text:"Testing 2",completed:true}
+]
 
 //when no data is expected in the db before each testcase, Before each test case is passed this function is called.
 beforeEach((done)=>{
 	Todo.remove({}).then(()=>{
 		Todo.insertMany(todoslist);
-	}).then(()=>done());
+	}).then(()=>{
+		Todo.find().then((res)=>
+		{
+			done();
+		});
+		
+		});
 });
 
 describe('POST /todos',()=>{
@@ -154,6 +163,62 @@ it('should return 404 when no doc found', (done)=>{
 		.expect(404) 
 		.expect((res)=>{
 			expect(res.body.text).toBe();
+		})
+		.end(done);
+})
+})
+
+describe('PATCH /todos/:id',()=> {
+		// Another TestCase for Empty text data that it shouldn't make an entry.
+
+	it('should update requested todos 1', (done)=>{
+		var text = "Testing 1 changed";
+		var updated_item = {
+			text:text,
+			completed:true
+		}
+	request(app)
+		.patch(`/todos/${todoslist[0]._id.toHexString()}`)
+		.send(updated_item)
+		.expect(200) 
+		.expect((res)=>{
+			expect(res.body.result.text).toBe(text);
+			expect(res.body.result.completed).toBe(true);
+			expect(res.body.result.completedAt).toExist();
+		})
+		.end(done);
+})
+	it('should update requested todos 2', (done)=>{
+		var text = "Testing 2 changed"
+		var updated_item = {
+			text:text,
+			completed:false
+		}
+	request(app)
+		.patch(`/todos/${todoslist[1]._id.toHexString()}`)
+		.send(updated_item)
+		.expect(200) 
+		.expect((res)=>{
+			expect(res.body.result.text).toBe(text);
+			expect(res.body.result.completed).toBe(false);
+			expect(res.body.result.completed).toBeA('boolean');
+			expect(res.body.result.completedAt).toNotExist();
+		})
+		.end(done);
+})
+	it('should return 404 when non-object ids', (done)=>{
+	request(app)
+		.patch(`/todos/12345`)
+		.expect(404)
+		.end(done);
+})
+
+it('should return 404 when no doc found', (done)=>{
+	request(app)
+		.patch(`/todos/{new ObjectID()}`)
+		.expect(404) 
+		.expect((res)=>{
+			expect(res.body.result).toBe();
 		})
 		.end(done);
 })
