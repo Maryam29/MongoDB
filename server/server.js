@@ -1,10 +1,10 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
 const {ObjectID} = require("mongodb") // to get Object ID and other properties from mongodb
-var {mongoose} = require('./db/mongoose');
-var {Todo} = require('./models/todo.js');
-var {user} = require('./models/user');
-
+const {mongoose} = require('./db/mongoose');
+const {Todo} = require('./models/todo.js');
+const {user} = require('./models/user');
+const _ = require('lodash');
 
 var app = express();
 
@@ -68,6 +68,33 @@ app.delete('/todos/:id',(req,res)=>{
 	}).catch((e)=>
 	{
 	return res.status(400).send("Given Id is Invalid")
+	});
+})
+
+app.patch('/todos/:id',(req,res)=>{
+	//res.send(req.params);
+	var id = req.params.id;
+	var body = _.pick(req.body,['text','completed']); // Extracts given properties from array req.body
+	if(!ObjectID.isValid(id)){
+		return res.status(404).send();
+	}
+	
+	if(_.isBoolean(body.completed) && body.completed){
+		body.completedAt = new Date().getTime();
+	}
+	else{
+		body.completedAt = null;
+		body.completed = false;
+	}
+	Todo.findByIdAndUpdate(id,{$set:body},{new:true}).then((result)=>
+	{
+		if(!result)
+			return res.status(404).send();
+		else
+			return res.send({result}); //it returns result object
+	}).catch((e)=>
+	{
+	return res.status(400).send()
 	});
 })
 
