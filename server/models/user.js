@@ -1,19 +1,80 @@
-var mongoose = require('mongoose');
-
+const mongoose = require('mongoose');
+const validator = require('validator');
+const jwt = require('jsonwebtoken');
+const _ = require('lodash');
 //------new collection------------//
-//Model Name is converted to lowercase and in plural form and collection is created in DB----------//
-var user = mongoose.model('Users',{
-Name:{
+
+var UserSchema = new mongoose.Schema({
+	Name:{
 	type:String,
-	
 },
-Email:{
+email:{
 	type:String,
 	required:true,
 	minlength:3,
-	trim:true
-}
+	trim:true,
+	unique:true,
+	validate:{
+		validator:validator.isEmail,
+		message:'{value} is not a valid Email'
+	}
+},
+password:{
+	type:String,
+	require:true,
+	minlength:6
+},
+tokens:[{
+	access:{
+		type:String,
+		required:true
+	},
+	token:{
+		type:String,
+		required:true
+	}
+}]
 });
+UserSchema.methods.toJSON = function(){
+	var user = this;
+	var userObject = user.toObject();
+	return _.pick(userObject ,['_id','email']);
+};
+
+UserSchema.methods.generateAuthToken = function(){
+	var user = this;
+	var access = "auth";
+	var token = jwt.sign({_id: user._id.toHexString(),access},'abc123').toString();
+	user.tokens.push({access,token}); //We sign the access as part of the payload because we want to know what the purpose of this token is when we receive and decode it 
+	return user.save().then(()=>{
+		return token;
+	});
+}; //UserSchema.methods is an object where we are going to create instance methods. 
+										//Instance methods have access to indiviual object. we're not using arrow function coz arrow function doesn't support this keyword
+
+	//user.save().then(() => { return token; }) //This means ---> Save the user ---->return the token---->at this point your token is sitting in the function.
+	
+//Promises :: You can chain as much as you line, and you don't even need to return a promise from the chain. You can just return a value (like the token) and that will get passed to the next then handler. For example:
+
+// const getNumber = () => {
+  // return new Promise((resolve, reject) => {
+    // resolve(5)
+  // });
+// };
+ 
+// getNumber().then((number) => {
+  // console.log(number); // will print 5
+  // return 10 + number; // Here we return a number similar to how we return a token
+// }).then((number) => {
+  // console.log(number); // will print 15
+// })
+
+var User = mongoose.model('User',UserSchema); //Model Name is converted to lowercase and in plural form and collection is created in DB----------//
+module.exports = {User};
+
+
+
+
 
 //.model returns contructor function
 // var newuser = new user({
@@ -26,5 +87,3 @@ Email:{
 // },(e)=>{
 	// console.log('Unable to save User',e);
 // });
-
-module.exports = {user};
