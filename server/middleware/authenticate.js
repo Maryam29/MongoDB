@@ -12,3 +12,5 @@ var authenticate = (req,res,next)=>{
 	});
 }
 module.exports = {authenticate};
+
+// Mongoose has a ton of middleware search for Mongoose middleware

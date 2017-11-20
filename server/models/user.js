@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 //------new collection------------//
 
 var UserSchema = new mongoose.Schema({
@@ -86,6 +87,21 @@ UserSchema.methods.generateAuthToken = function(){
   // console.log(number); // will print 15
 // })
 
+UserSchema.pre('save',function(next){ //access to indiviual document
+var user = this;
+if(user.isModified('password')) // isModified has access to indiviual property and checks if password is modified in current save or not becoz before every save this function is going to get called so even when pwd is not modifed it will hash the pwd. Therefore we're checking and hashing password only when it is modified.
+{
+	bcrypt.genSalt(10,(err,salt)=>{
+		bcrypt.hash(user.password,salt,(err,hash)=>{
+			user.password = hash;
+			next();
+		})
+	})
+}
+else{
+	next();
+}
+})
 var User = mongoose.model('User',UserSchema); //Model Name is converted to lowercase and in plural form and collection is created in DB----------//
 module.exports = {User};
 

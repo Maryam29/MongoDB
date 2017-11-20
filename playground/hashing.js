@@ -1,31 +1,44 @@
 const {SHA256} = require('crypto-js');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
-var message =' I am use no. 3';
-var hash = SHA256(message).toString();
+var password = '123abc!';
 
-// console.log(message);
-// console.log(hash);
+bcrypt.genSalt(10,(err,salt) => {
+	bcrypt.hash(password,salt,(err,hash)=>{
+		console.log(hash);
+	});
+});
+var hashedpassword = "$2a$10$XFAXdrAGmN6ndWU2wFHYDOUbhEH3DXN9ghvJt/WtZrPUakM7hHmMO";
+bcrypt.compare(password,hashedpassword,(err,res)=>{
+	console.log(res);
+})
 
-var data = {
-	id:4
-};
-// var token = {
-	// data,
-	// hash:SHA256(JSON.stringify(data)+'somesecret').toString() //somesecret is a key
-// }
+// var message =' I am use no. 3';
+// var hash = SHA256(message).toString();
 
-// var resulthash = SHA256(JSON.stringify(token.data)+'somesecret').toString(); //at reciver's end token is received which has both data and hash, using token.data receiver is going to compute resulthash and compare it with token's hash
+// // console.log(message);
+// // console.log(hash);
 
-// if(resulthash === token.hash){
-	// console.log('Data was not changed');
-// }
-// else{
-	// console.log('Data was changed. Do not trust!');
-// }
+// var data = {
+	// id:4
+// };
+// // var token = {
+	// // data,
+	// // hash:SHA256(JSON.stringify(data)+'somesecret').toString() //somesecret is a key
+// // }
 
-// JSON Web Token is a library for hashing 
+// // var resulthash = SHA256(JSON.stringify(token.data)+'somesecret').toString(); //at reciver's end token is received which has both data and hash, using token.data receiver is going to compute resulthash and compare it with token's hash
 
-var token = jwt.sign(data,'somesecret');
-var decoded = jwt.verify(token, 'somesecret');
-console.log('decoded',decoded);
+// // if(resulthash === token.hash){
+	// // console.log('Data was not changed');
+// // }
+// // else{
+	// // console.log('Data was changed. Do not trust!');
+// // }
+
+// // JSON Web Token is a library for hashing 
+
+// var token = jwt.sign(data,'somesecret');
+// var decoded = jwt.verify(token, 'somesecret');
+// console.log('decoded',decoded);
