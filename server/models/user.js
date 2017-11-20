@@ -35,6 +35,23 @@ tokens:[{
 	}
 }]
 });
+// .statics define model methods
+UserSchema.statics.findByToken = function(token){
+	try{
+		var User = this // Model methods get called using Model as this binding
+		var decoded = jwt.verify(token,"abc123");
+	}
+	catch(e){
+		return Promise.reject(); //This is shorthand form of new Promise((resolve,reject)=>{reject();})
+	}
+	return User.findOne({
+		'_id':decoded._id,
+		'tokens.token':token, //accessing sub-document using single quotes
+		'tokens.access':"auth"
+	});
+};
+
+// This function is not called explicitly anywhere but is called when res s send, object calls Json.stringify and which in turn calls toJSON function
 UserSchema.methods.toJSON = function(){
 	var user = this;
 	var userObject = user.toObject();

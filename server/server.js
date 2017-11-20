@@ -3,8 +3,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require("mongodb") // to get Object ID and other properties from mongodb
 const {mongoose} = require('./db/mongoose');
-const {Todo} = require('./models/todo.js');
-const {User} = require('./models/user.js');
+const {Todo} = require('./models/todo');
+const {User} = require('./models/user');
+const {authenticate} = require('./middleware/authenticate');
 const _ = require('lodash');
 
 var app = express();
@@ -96,7 +97,7 @@ app.patch('/todos/:id',(req,res)=>{
 	{
 	return res.status(400).send()
 	});
-})
+});
 
 app.post('/user',(req,res)=>{
 	
@@ -109,6 +110,10 @@ app.post('/user',(req,res)=>{
 	}).catch((e)=>{
 		res.status(400).send(e);
 	})
+}) //Create a new User
+
+app.get('/users/me',authenticate,(req,res)=>{ //is going to auth users. and return corre. user
+	res.send(req.user);
 }) //Create a new User
 
 app.listen(port,()=>{
