@@ -324,3 +324,28 @@ it('Password incorrect', (done)=>{
 		.end(done)
 })
 })
+
+describe('DELETE /user/me',()=> {
+	it('should remove auth token on log out', (done)=>{
+	request(app)
+		.delete('/users/me')
+		.set("x-auth",users[0].tokens[0].token)
+		.expect(200)
+		.end((err,res)=>{
+			User.find({'tokens.token':users[0].tokens[0].token}).count().then((count)=>{
+				expect(count).toBe(0);
+			}).catch((e)=>done(e))
+			done();
+		});
+})
+
+	it('should get 401 when no token passed to header', (done)=>{
+	request(app)
+		.delete('/users/me')
+		.expect(401)
+		.expect((res)=>{
+			expect(res.body).toEqual({})
+		})
+		.end(done);
+})
+})

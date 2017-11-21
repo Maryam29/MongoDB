@@ -117,7 +117,7 @@ app.get('/users/me',authenticate,(req,res)=>{ //is going to auth users. Pass x-a
 	res.send(req.user);
 }) //Create a new User
 
-app.post('/user/login',(req,res)=>{
+app.post('/user/login',(req,res)=>{              //is going to login and verify the credentials and then create a token and store it in db
 	
 	var body = _.pick(req.body,['email','password']);
 	//var user = new User(body);
@@ -131,13 +131,14 @@ app.post('/user/login',(req,res)=>{
 	})
 }) //Create a new User
 
-app.delete('/users/me',authenticate,(req,res) =>{
+app.delete('/users/me',authenticate,(req,res) =>{ //is going to auth users and delete the token hence logging out. Pass x-auth in header and return corresponding user. If no token or no user send 401 unauthorized status.
 	req.user.removeToken(req.token).then(() => {
 		res.status(200).send();
 	},()=>{
-		res.status(400).send();
+		res.status(401).send();
 	});
 })
+
 app.listen(port,()=>{
 	console.log('Started on port '+ port);
 })
