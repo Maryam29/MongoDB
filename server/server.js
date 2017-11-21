@@ -6,6 +6,7 @@ const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
 const {authenticate} = require('./middleware/authenticate');
+const bcrypt = require('bcryptjs')
 const _ = require('lodash');
 
 var app = express();
@@ -114,6 +115,20 @@ app.post('/user',(req,res)=>{
 
 app.get('/users/me',authenticate,(req,res)=>{ //is going to auth users. Pass x-auth in header and return corresponding user. If no token or no user send 401 unauthorized status.
 	res.send(req.user);
+}) //Create a new User
+
+app.post('/user/login',(req,res)=>{
+	
+	var body = _.pick(req.body,['email','password']);
+	//var user = new User(body);
+	
+	User.findByCredentials(body.email,body.password).then((result)=>{
+		return result.generateAuthToken().then((token)=>{
+			res.header('x-auth',token).send(result);
+		})
+	}).catch((e)=>{
+		res.status(400).send();
+	})
 }) //Create a new User
 
 app.listen(port,()=>{

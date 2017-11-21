@@ -52,6 +52,19 @@ UserSchema.statics.findByToken = function(token){
 	});
 };
 
+UserSchema.statics.findByCredentials = function(email,password){
+	return User.findOne({email:email}).then((result)=>{
+		if(!result)
+			return Promise.reject();
+		return bcrypt.compare(password,result.password).then((isequal)=>{
+		if(isequal)
+			return result;
+		else
+			return Promise.reject();
+		});
+	})
+};
+
 // This function is not called explicitly anywhere but is called when res s send, object calls Json.stringify and which in turn calls toJSON function
 UserSchema.methods.toJSON = function(){
 	var user = this;
