@@ -1,10 +1,11 @@
 var env = process.env.NODE_ENV || 'development'  
+console.log(process.env.NODE_ENV);
 // process.env.NODE_ENV is set by Heroku to "production" by default and for developement purpose we're setting it to 'developement',when we run it for testing pupose we'll set it to 'test' inside package.config
 if(env === 'development'){
 process.env.PORT = 3000;
 process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoApp2' 
 }
-else if(env === 'test'){
+else{
 process.env.PORT = 3000;
 process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoAppTest'
 }

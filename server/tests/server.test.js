@@ -4,24 +4,14 @@ const {ObjectID} = require("mongodb");
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
-
-const todoslist = [
-{_id: new ObjectID(),text:"Testing 1"},
-{_id: new ObjectID(),text:"Testing 2",completed:true}
-]
+const {User} = require('./../models/user');
+const {todoslist,populateTodos,users,populateUsers} = require('./seed/seed');
 
 //when no data is expected in the db before each testcase, Before each test case is passed this function is called.
-beforeEach((done)=>{
-	Todo.remove({}).then(()=>{
-		Todo.insertMany(todoslist);
-	}).then(()=>{
-		Todo.find().then((res)=>
-		{
-			done();
-		});
-		
-		});
-});
+beforeEach(populateUsers);
+//when no data is expected in the db before each testcase, Before each test case is passed this function is called.
+beforeEach(populateTodos);
+
 
 describe('POST /todos',()=>{
 		// Another TestCase for Empty text data that it shouldn't make an entry.
@@ -224,5 +214,79 @@ it('should return 404 when no doc found', (done)=>{
 })
 })
 
+describe('GET /user/me',()=> {
+	it('should get user corresponding to the x-auth token', (done)=>{
+	request(app)
+		.get('/users/me')
+		.set("x-auth",users[0].tokens[0].token)
+		.expect(200)
+		.expect((res)=>{
+			expect(res.body.email).toBe(users[0].email)
+			expect(res.body._id).toBe(users[0]._id.toHexString())
+		})
+		.end(done);
+})
 
+	it('should get 401 when no token passed to header', (done)=>{
+	request(app)
+		.get('/users/me')
+		.expect(401)
+		.expect((res)=>{
+			expect(res.body).toEqual({})
+		})
+		.end(done);
+})
+})
 
+describe('POST /user',()=> {
+	var user = {email:"shoeb2@gmail.com",password:"abc123!"};
+	it('should add a new user', (done)=>{
+		
+	request(app)
+		.post('/user')
+		.send(user)
+		.expect(200)
+		.expect((res)=>{
+			expect(res.body.email).toBe(user.email)
+		})
+		//.end(done);
+		.end((err,res)=>{
+			User.find({email:user.email}).then((res)=>{
+				expect(res.length).toBe(1);
+				expect(res[0].email).toBe(user.email);
+				expect(res[0].password).toNotBe(user.password);
+				expect(res[0].tokens[0].token).toNotEqual({});
+				done();
+			}).catch((err)=>done(err));
+		})
+})
+
+	it('shouldnot add a new user when email is already present', (done)=>{
+		
+	request(app)
+		.post('/user')
+		.send(user)
+		.expect(400)
+		.end((err,res)=>{
+			User.find({email:user.email}).then((res)=>{
+				expect(res.length).toBe(1);
+				done();
+			}).catch((err)=>done(err));
+		})
+})
+
+	it('shouldnot add a new user when data is invalid', (done)=>{
+    var user2 = {email:"shoeb3@gmail.com",password:"add"};
+	request(app)
+		.post('/user')
+		.send(user)
+		.expect(400)
+		.end((err,res)=>{
+			User.find({email:user2.email}).then((res)=>{
+				expect(res.length).toBe(0);
+				done();
+			}).catch((err)=>done(err));
+		})
+})
+
+})

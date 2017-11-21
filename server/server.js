@@ -112,7 +112,7 @@ app.post('/user',(req,res)=>{
 	})
 }) //Create a new User
 
-app.get('/users/me',authenticate,(req,res)=>{ //is going to auth users. and return corre. user
+app.get('/users/me',authenticate,(req,res)=>{ //is going to auth users. Pass x-auth in header and return corresponding user. If no token or no user send 401 unauthorized status.
 	res.send(req.user);
 }) //Create a new User
 
