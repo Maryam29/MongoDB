@@ -278,7 +278,7 @@ describe('POST /user',()=> {
 	it('shouldnot add a new user when data is invalid', (done)=>{
     var user2 = {email:"shoeb3@gmail.com",password:"add"};
 	request(app)
-		.post('/user')
+		.post('/users')
 		.send(user)
 		.expect(400)
 		.end((err,res)=>{
@@ -288,5 +288,39 @@ describe('POST /user',()=> {
 			}).catch((err)=>done(err));
 		})
 })
-
+})
+describe('POST /user/login',()=> {
+	it('should login a user and generate auth token for valid email-id and password', (done)=>{
+		
+	request(app)
+		.post('/user/login')
+		.send({email:users[1].email,password:users[1].password})  //users1 doen't have a token already created, thats why testing tokens[0]
+		.expect(200)
+		.expect((res)=>{
+			expect(res.body.email).toBe(users[1].email)
+			expect(res.headers['x-auth']).toExist()   //we are using [] notation as we have hyphen(-) in property name
+		})
+		.end((err,res)=>{
+			if(err)
+				done(err);
+			
+				User.findById(users[1]._id).then((user)=>{
+				expect(user.tokens[0]).toInclude({    // to check if token is added
+					access:'auth',
+					token:res.headers['x-auth']
+				});
+				done();
+				}).catch((err)=>done(err));
+			})
+		})
+it('Password incorrect', (done)=>{
+	request(app)
+		.post('/user/login')
+		.send({email:users[0].email,password:"456789"})
+		.expect(400)
+		.expect((res)=>{
+			expect(res.headers['x-auth']).toNotExist()   //we are using [] notation as we have hyphen(-) in property name
+		})
+		.end(done)
+})
 })
