@@ -72,6 +72,17 @@ UserSchema.methods.toJSON = function(){
 	return _.pick(userObject ,['_id','email']);
 };
 
+UserSchema.methods.removeToken = function(token){
+	var user = this;
+	return user.update({
+		$pull:{
+			tokens:{
+				token:token
+			}
+		}
+	})
+};
+
 UserSchema.methods.generateAuthToken = function(){
 	var user = this;
 	var access = "auth";
@@ -117,10 +128,6 @@ else{
 })
 var User = mongoose.model('User',UserSchema); //Model Name is converted to lowercase and in plural form and collection is created in DB----------//
 module.exports = {User};
-
-
-
-
 
 //.model returns contructor function
 // var newuser = new user({

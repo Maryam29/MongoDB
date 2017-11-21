@@ -131,6 +131,13 @@ app.post('/user/login',(req,res)=>{
 	})
 }) //Create a new User
 
+app.delete('/users/me',authenticate,(req,res) =>{
+	req.user.removeToken(req.token).then(() => {
+		res.status(200).send();
+	},()=>{
+		res.status(400).send();
+	});
+})
 app.listen(port,()=>{
 	console.log('Started on port '+ port);
 })
